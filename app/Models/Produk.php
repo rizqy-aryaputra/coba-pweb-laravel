@@ -16,6 +16,7 @@ class Produk extends Model
         'foto',
     ];
 
+    
     protected $casts = [
         'harga' => 'decimal:2',
         'stok' => 'integer',
