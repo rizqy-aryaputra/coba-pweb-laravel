@@ -9,18 +9,57 @@ class ProductController extends Controller
 {
     public function index()
     {
-        if(auth()->check()){
+        $products = Product::paginate(10);
 
-            $products = Product::where('user_id', auth()->id())
-                ->paginate(10);
+        $visitCount =
+            session('visit_count', 0);
+        $visitCount++;
 
-        } else {
-
-            $products = Product::paginate(10);
-
+        session([
+            'visit_count' => $visitCount
+        ]);
+        if(!session()->has('first_visit')){
+            session([
+                'first_visit' => now()
+                    ->format('d M Y H:i:s')
+            ]);
         }
 
-        return view('products.index', compact('products'));
+        session([
+            'last_visit' => now()
+                ->format('d M Y H:i:s')
+        ]);
+
+        return view(
+            'products.index',
+            compact('products')
+        );
+    }
+
+    public function resetVisit()
+    {
+        session()->forget([
+            'visit_count',
+            'first_visit',
+            'last_visit'
+        ]);
+
+        return redirect()
+            ->back()
+            ->with(
+                'success',
+                'Visit counter reset!'
+            );
+    }
+
+    public function search(Request $request)
+    {
+        $keyword = $request->keyword;
+
+        $products = Product::where('nama', 'like', "%{$keyword}%")
+            ->get();
+
+        return response()->json($products);
     }
 
     public function create()

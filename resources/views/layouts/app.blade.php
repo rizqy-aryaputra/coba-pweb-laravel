@@ -7,21 +7,86 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <script>
+            const theme =
+                document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('theme='))
+                    ?.split('=')[1];
+
+            if(theme === 'dark'){
+
+                document.documentElement
+                    .classList.add('dark');
+            }
+        </script>
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+    <script>
+    function setCookie(name, value, days = 30){
+        let expires = "";
+        if(days){
+            const date = new Date();
+            date.setTime(
+                date.getTime()
+                + (days * 24 * 60 * 60 * 1000)
+            );
+            expires =
+                "; expires=" + date.toUTCString();
+        }
+        document.cookie =
+            name + "=" + value
+            + expires
+            + "; path=/";
+    }
+
+    function getCookie(name){
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++){
+            let c = ca[i];
+            while(c.charAt(0) === ' '){
+                c = c.substring(1, c.length);
+            }
+            if(c.indexOf(nameEQ) === 0){
+                return c.substring(
+                    nameEQ.length,
+                    c.length
+                );
+            }
+        }
+        return null;
+    }
+
+    function deleteCookie(name){
+        document.cookie =
+            name +
+            '=; Max-Age=-99999999;';
+    }
+    </script>
+
+
+    <body class="
+    bg-white text-black
+    dark:bg-black dark:text-white
+    transition duration-300
+    ">
+        <div class="min-h-screen
+        bg-gray-100 dark:bg-gray-900
+        text-black dark:text-white
+        transition duration-300">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
             @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <header class="bg-white dark:bg-gray-800 shadow">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8
+                    text-black dark:text-white">
                         {{ $header }}
                     </div>
                 </header>
@@ -65,5 +130,20 @@
                 @yield('content')
             </main>
         </div>
+        <script>
+        const darkToggle =
+            document.getElementById('darkToggle');
+        darkToggle?.addEventListener('click', () => {
+            document.documentElement
+                .classList.toggle('dark');
+
+            if(document.documentElement
+                .classList.contains('dark')){
+                setCookie('theme', 'dark');
+            } else {
+                setCookie('theme', 'light');
+            }
+        });
+        </script>
     </body>
 </html>

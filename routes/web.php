@@ -3,21 +3,46 @@
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PreferenceController;
+
+Route::get(
+    '/reset-visit',
+    [ProductController::class, 'resetVisit']
+)->name('reset.visit');
 
 Route::get('/', function () {
-    return view('welcome');
+
+    if(auth()->check()){
+        return redirect('/dashboard');
+    }
+
+    return redirect('/login');
+
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
+    return view('dashboard');
+
+})->middleware(['auth', 'verified'])
+->name('dashboard');
+
+
+Route::view('/preferensi', 'preferences');
+
+Route::post(
+    '/save-preferences',
+    [PreferenceController::class, 'save']
+);
 
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTE
 |--------------------------------------------------------------------------
 */
+
+Route::get('/search-products', [ProductController::class, 'search'])
+    ->name('products.search');
 
 Route::get('/products', [ProductController::class, 'index'])
     ->name('products.index');

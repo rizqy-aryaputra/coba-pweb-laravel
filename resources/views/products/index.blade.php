@@ -14,6 +14,17 @@
 
     </div>
 
+    {{-- Search Box --}}
+    <div class="search-box">
+
+        <input
+            type="text"
+            id="search"
+            placeholder="Search product..."
+        >
+
+    </div>
+    
     {{-- Flash Message --}}
     @if(session('success'))
 
@@ -31,8 +42,34 @@
 
     @endif
 
+
+    <div class="visit-box">
+        <h3>Product Page Visits</h3>
+        <p>
+            Total Visit:
+            {{ session('visit_count') }}
+        </p>
+
+        <p>
+            First Visit:
+            {{ session('first_visit') }}
+        </p>
+
+        <p>
+            Last Visit:
+            {{ session('last_visit') }}
+        </p>
+
+        <a
+            href="{{ route('reset.visit') }}"
+            class="btn-reset"
+        >
+            Reset Hitungan
+        </a>
+    </div>
+
     {{-- Product List --}}
-    <div class="product-grid">
+    <div class="product-grid" id="product-list">
 
         @forelse($products as $product)
 
@@ -315,6 +352,181 @@
     color:white;
 }
 
+.search-box{
+    margin-bottom:30px;
+}
+
+.search-box input{
+    width:100%;
+    padding:14px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    font-size:16px;
+}
+
+.product-image{
+    width:100%;
+    height:250px;
+    object-fit:cover;
+}
+
+.no-image{
+    height:250px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#eee;
+}
+
+.card{
+    border:1px solid #ddd;
+    border-radius:16px;
+    overflow:hidden;
+    background:white;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+.card-body{
+    padding:20px;
+}
+
+.visit-box{
+    background:white;
+    padding:25px;
+    border-radius:16px;
+    margin-bottom:30px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+.dark .visit-box{
+    background:#1f2937;
+    color:white;
+}
+
+.btn-reset{
+    display:inline-block;
+    margin-top:15px;
+    padding:10px 18px;
+    background:#dc3545;
+    color:white;
+    border-radius:10px;
+    text-decoration:none;
+}
 </style>
+
+<script>
+
+const searchInput =
+    document.getElementById('search');
+
+searchInput.addEventListener('keyup', async function () {
+
+    const keyword = this.value;
+
+    try {
+
+        const response = await fetch(
+            `/search-products?keyword=${keyword}`
+        );
+
+        const products = await response.json();
+
+        let html = '';
+
+        if(products.length > 0){
+
+            products.forEach(product => {
+
+                html += `
+
+                    <div class="card">
+
+                        ${
+                            product.foto
+                            ?
+                            `
+                            <img
+                                src="/${product.foto}"
+                                class="product-image"
+                            >
+                            `
+                            :
+                            `
+                            <div class="no-image">
+                                No Image
+                            </div>
+                            `
+                        }
+
+                        <div class="card-body">
+
+                            <h2>${product.nama}</h2>
+
+                            <p>
+                                <strong>Kode:</strong>
+                                ${product.kode}
+                            </p>
+
+                            <p>
+                                <strong>Kategori:</strong>
+                                ${product.kategori}
+                            </p>
+
+                            <p>
+                                <strong>Stok:</strong>
+                                ${product.stok}
+                            </p>
+
+                            <p>
+                                <strong>Harga:</strong>
+                                Rp ${product.harga}
+                            </p>
+
+                            <div class="action">
+
+                                <a
+                                    href="/products/${product.id}"
+                                    class="btn"
+                                >
+                                    Detail
+                                </a>
+
+                                <a
+                                    href="/products/${product.id}/edit"
+                                    class="btn"
+                                >
+                                    Edit
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            });
+
+        } else {
+
+            html = `
+                <p>Product tidak ditemukan.</p>
+            `;
+
+        }
+
+        document.getElementById('product-list')
+            .innerHTML = html;
+
+    } catch(error){
+
+        console.log(error);
+
+    }
+
+});
+
+</script>
 
 @endsection
