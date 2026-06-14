@@ -103,32 +103,36 @@ class OrderController extends Controller
 
     public function confirm(Order $order)
     {
-        $order->update([
-            'status' => 'Confirmed'
-        ]);
+        if($order->status == 'Pending')
+        {
+            $order->update([
+                'status' => 'Confirmed'
+            ]);
+        }
 
-        return back()->with(
-            'success',
-            'Order confirmed.'
-        );
+        return redirect()
+            ->back()
+            ->with(
+                'success',
+                'Order confirmed.'
+            );
     }
 
     public function cancel(Order $order)
     {
-        // kembalikan stok barang
+        if($order->status == 'Pending')
+        {
+            $product = $order->product;
 
-        $product = $order->product;
+            if($product)
+            {
+                $product->increment('stok');
+            }
 
-        if($product){
-
-            $product->stok += 1;
-
-            $product->save();
+            $order->update([
+                'status' => 'Cancelled'
+            ]);
         }
-
-        $order->status = 'Cancelled';
-
-        $order->save();
 
         return redirect()
             ->back()
