@@ -1,341 +1,458 @@
-@extends('layouts.app')
+@extends('layouts.customer')
 
 @section('content')
 
-<div class="dashboard-container">
+@php
 
-    <!-- HERO -->
+$recentProducts = \App\Models\Product::whereIn(
+    'id',
+    session('recent_products', [])
+)->get();
 
-    <div class="hero-section">
+@endphp
 
-        <div>
+<section class="account-header">
 
-            <h1>
-                Hi, {{ auth()->user()->name }} 👋
-            </h1>
+    <span>
+        MY ACCOUNT
+    </span>
 
-            <p>
-                Welcome back to SECOND CHANCE
-            </p>
+    <h1>
 
-        </div>
+        Welcome back,
+        {{ auth()->user()->name }}
 
-        <div class="hero-buttons">
+    </h1>
 
-            <a href="/products" class="btn">
-                View Products
+    <p>
+
+        Continue exploring curated luxury pieces.
+
+    </p>
+
+</section>
+
+<section class="account-stats">
+
+    <div class="stat-item">
+
+        <span>
+            Wishlist Items
+        </span>
+
+        <h2>
+
+            {{ auth()->user()->wishlists()->count() }}
+
+        </h2>
+
+    </div>
+
+    <div class="stat-item">
+
+        <span>
+            Recently Viewed
+        </span>
+
+        <h2>
+
+            {{ count(session('recent_products', [])) }}
+
+        </h2>
+
+    </div>
+
+    <div class="stat-item">
+
+        <span>
+            Member Since
+        </span>
+
+        <h2>
+
+            {{ auth()->user()->created_at->format('M Y') }}
+
+        </h2>
+
+    </div>
+
+</section>
+
+<section class="account-services">
+
+    <a
+        href="{{ route('profile.edit') }}"
+        class="service-card"
+    >
+
+        <span>
+            ACCOUNT
+        </span>
+
+        <h3>
+
+            Profile Settings
+
+        </h3>
+
+        <p>
+
+            Update your personal information
+            and account details.
+
+        </p>
+
+    </a>
+
+    <a
+        href="{{ route('orders.index') }}"
+        class="service-card"
+    >
+
+        <span>
+            PURCHASES
+        </span>
+
+        <h3>
+
+            Order History
+
+        </h3>
+
+        <p>
+
+            View and track all your
+            luxury purchases.
+
+        </p>
+
+    </a>
+
+</section>
+
+<section class="quick-links">
+
+    <a
+        href="{{ route('products.index') }}"
+        class="quick-btn"
+    >
+
+        Shop Collection
+
+    </a>
+
+    <a
+        href="{{ route('wishlist.index') }}"
+        class="quick-btn"
+    >
+
+        View Wishlist
+
+    </a>
+
+</section>
+
+@if($recentProducts->count())
+
+<section class="recent-section">
+
+    <div class="section-title">
+
+        RECENTLY VIEWED
+
+    </div>
+
+    <div class="product-grid">
+
+        @foreach($recentProducts as $product)
+
+            <a
+                href="{{ route('products.show',$product) }}"
+                class="product-card"
+            >
+
+                @if($product->foto)
+
+                    <img
+                        src="{{ asset($product->foto) }}"
+                        class="product-image"
+                    >
+
+                @endif
+
+                <h3>
+
+                    {{ strtoupper($product->nama) }}
+
+                </h3>
+
+                <p>
+
+                    Rp
+                    {{ number_format($product->harga) }}
+
+                </p>
+
             </a>
 
-            <a href="/products/create" class="btn">
-                + Add Product
-            </a>
-
-            <a href="/preferensi" class="btn">
-                Preferences
-            </a>
-
-        </div>
+        @endforeach
 
     </div>
 
-    <!-- STATS -->
+</section>
 
-    <div class="stats-grid">
-
-        <div class="stat-card">
-
-            <h3>Total Products</h3>
-
-            <p>{{ \App\Models\Product::count() }}</p>
-
-        </div>
-
-        <div class="stat-card">
-
-            <h3>Total Stock</h3>
-
-            <p>{{ \App\Models\Product::sum('stok') }}</p>
-
-        </div>
-
-        <div class="stat-card">
-
-            <h3>Low Stock</h3>
-
-            <p>
-                {{
-                    \App\Models\Product::where(
-                        'stok',
-                        '<',
-                        5
-                    )->count()
-                }}
-            </p>
-
-        </div>
-
-        <div class="stat-card">
-
-            <h3>Categories</h3>
-
-            <p>
-                {{
-                    \App\Models\Product::distinct()
-                        ->count('kategori')
-                }}
-            </p>
-
-        </div>
-
-    </div>
-
-    <!-- WEATHER -->
-
-    <div class="weather-section">
-
-        <h2>Weather in Surabaya</h2>
-
-        <div id="loading">
-            Loading weather data...
-        </div>
-
-        <div id="weather-result"
-            style="display:none;">
-
-            <h3 id="city"></h3>
-
-            <p id="temperature"></p>
-
-            <p id="description"></p>
-
-        </div>
-
-    </div>
-
-    <!-- LATEST PRODUCTS -->
-
-    <div class="latest-products">
-
-        <h2>Latest Products</h2>
-
-        <div class="product-grid">
-
-            @foreach(
-                \App\Models\Product::latest()
-                    ->take(4)
-                    ->get()
-                as $product
-            )
-
-                <div class="card">
-
-                    @if($product->foto)
-
-                        <img
-                            src="{{ asset($product->foto) }}"
-                            class="product-image"
-                        >
-
-                    @endif
-
-                    <div class="card-body">
-
-                        <h3>
-                            {{ $product->nama }}
-                        </h3>
-
-                        <p>
-                            Rp
-                            {{ number_format($product->harga) }}
-                        </p>
-
-                    </div>
-
-                </div>
-
-            @endforeach
-
-        </div>
-
-    </div>
-
-</div>
+@endif
 
 <style>
 
-.dashboard-container{
-    width:90%;
+.account-header{
+
+    width:88%;
+    margin:90px auto 70px;
+}
+
+.account-header span{
+
+    letter-spacing:4px;
+    font-size:12px;
+    color:#777;
+}
+
+.account-header h1{
+
+    margin-top:15px;
+
+    font-size:68px;
+
+    font-weight:300;
+
+    line-height:1.1;
+}
+
+.account-header p{
+
+    margin-top:20px;
+
+    color:#666;
+
+    font-size:18px;
+}
+
+.account-stats{
+
+    width:88%;
     margin:auto;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    border-top:1px solid #eee;
+    border-bottom:1px solid #eee;
+}
+
+.account-services{
+
+    width:88%;
+
+    margin:70px auto;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+    gap:25px;
+}
+
+.service-card{
+
+    border:1px solid #eee;
+
+    padding:40px;
+
+    color:black;
+
+    transition:.3s;
+}
+
+.service-card:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:
+        0 15px 35px rgba(0,0,0,.06);
+}
+
+.service-card span{
+
+    font-size:11px;
+
+    letter-spacing:3px;
+
+    color:#888;
+}
+
+.service-card h3{
+
+    margin-top:15px;
+
+    margin-bottom:15px;
+
+    font-size:28px;
+
+    font-weight:300;
+}
+
+.service-card p{
+
+    color:#666;
+
+    line-height:1.8;
+}
+
+.stat-item{
+
     padding:40px 0;
 }
 
-/* HERO */
+.stat-item span{
 
-.hero-section{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:40px;
-    flex-wrap:wrap;
-    gap:20px;
+    font-size:12px;
+
+    letter-spacing:3px;
+
+    color:#888;
 }
 
-.hero-section h1{
+.stat-item h2{
+
+    margin-top:15px;
+
     font-size:42px;
-    margin-bottom:10px;
+
+    font-weight:300;
 }
 
-.hero-buttons{
+.quick-links{
+
+    width:88%;
+    margin:70px auto;
+
     display:flex;
-    gap:15px;
-    flex-wrap:wrap;
-}
 
-.btn{
-    padding:12px 20px;
-    background:black;
-    color:white;
-    border-radius:12px;
-    text-decoration:none;
-}
-
-.dark .btn{
-    background:white;
-    color:black;
-}
-
-/* STATS */
-
-.stats-grid{
-    display:grid;
-    grid-template-columns:
-        repeat(auto-fit, minmax(220px,1fr));
     gap:20px;
-    margin-bottom:40px;
 }
 
-.stat-card{
-    background:white;
-    padding:30px;
-    border-radius:20px;
-    box-shadow:0 4px 15px rgba(0,0,0,0.08);
+.quick-btn{
+
+    border:1px solid #111;
+
+    padding:
+        16px
+        35px;
+
+    color:black;
+
+    transition:.3s;
 }
 
-.dark .stat-card{
-    background:#1f2937;
+.quick-btn:hover{
+
+    background:black;
+
     color:white;
 }
 
-.stat-card h3{
-    margin-bottom:10px;
+.recent-section{
+
+    width:88%;
+
+    margin:120px auto;
 }
 
-.stat-card p{
-    font-size:36px;
-    font-weight:bold;
-}
+.section-title{
 
-/* WEATHER */
+    font-size:14px;
 
-.weather-section{
-    background:white;
-    padding:30px;
-    border-radius:20px;
+    letter-spacing:4px;
+
     margin-bottom:40px;
-    box-shadow:0 4px 15px rgba(0,0,0,0.08);
-}
-
-.dark .weather-section{
-    background:#1f2937;
-    color:white;
-}
-
-#temperature{
-    font-size:40px;
-    font-weight:bold;
-}
-
-/* PRODUCTS */
-
-.latest-products h2{
-    margin-bottom:20px;
 }
 
 .product-grid{
+
     display:grid;
+
     grid-template-columns:
-        repeat(auto-fit, minmax(250px,1fr));
-    gap:20px;
+        repeat(4,1fr);
+
+    gap:30px;
 }
 
-.card{
-    background:white;
-    border-radius:20px;
-    overflow:hidden;
-    box-shadow:0 4px 15px rgba(0,0,0,0.08);
-}
+.product-card{
 
-.dark .card{
-    background:#1f2937;
-    color:white;
+    color:black;
 }
 
 .product-image{
+
     width:100%;
-    height:250px;
+
+    height:350px;
+
     object-fit:cover;
+
+    margin-bottom:15px;
 }
 
-.card-body{
-    padding:20px;
+.product-card h3{
+
+    font-size:14px;
+
+    margin-bottom:8px;
 }
 
-</style>
+.product-card p{
 
-<script>
+    color:#555;
+}
 
-async function getWeather() {
+@media(max-width:992px){
 
-    const loading =
-        document.getElementById('loading');
+    .account-header h1{
 
-    const result =
-        document.getElementById('weather-result');
+        font-size:48px;
+    }
 
-    try {
+    .account-stats{
 
-        const response = await fetch(
-            'https://wttr.in/Surabaya?format=j1'
-        );
+        grid-template-columns:1fr;
+    }
 
-        const data = await response.json();
+    .product-grid{
 
-        document.getElementById('city')
-            .innerText = '📍 Surabaya';
+        grid-template-columns:
+            repeat(2,1fr);
+    }
 
-        document.getElementById('temperature')
-            .innerText =
-            `🌡 ${data.current_condition[0].temp_C}°C`;
+    .account-services{
 
-        document.getElementById('description')
-            .innerText =
-            `☁ ${data.current_condition[0]
-                .weatherDesc[0].value}`;
-
-        loading.style.display = 'none';
-
-        result.style.display = 'block';
-
-    } catch(error){
-
-        loading.innerText =
-            'Failed to load weather data';
+        grid-template-columns:1fr;
     }
 
 }
 
-getWeather();
+@media(max-width:768px){
 
-</script>
+    .product-grid{
+
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
 
 @endsection

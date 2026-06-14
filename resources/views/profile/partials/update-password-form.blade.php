@@ -1,48 +1,240 @@
 <section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Update Password') }}
+
+    <div class="password-header">
+
+        <h2>
+
+            Security Settings
+
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __('Ensure your account is using a long, random password to stay secure.') }}
+        <p>
+
+            Update your password to keep your
+            account secure.
+
         </p>
-    </header>
 
-    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
+    </div>
+
+    <form
+        method="POST"
+        action="{{ route('password.update') }}"
+    >
+
         @csrf
-        @method('put')
+        @method('PUT')
 
-        <div>
-            <x-input-label for="update_password_current_password" :value="__('Current Password')" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
-        </div>
+        <div class="form-group">
 
-        <div>
-            <x-input-label for="update_password_password" :value="__('New Password')" />
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
-        </div>
+            <label>
 
-        <div>
-            <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
-        </div>
+                Current Password
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            </label>
 
-            @if (session('status') === 'password-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
+            <input
+                type="password"
+                name="current_password"
+                autocomplete="current-password"
+            >
+
+            @if(
+                $errors->updatePassword
+                    ->get('current_password')
+            )
+
+                <small class="error">
+
+                    {{
+                        $errors
+                            ->updatePassword
+                            ->first(
+                                'current_password'
+                            )
+                    }}
+
+                </small>
+
             @endif
+
         </div>
+
+        <div class="form-group">
+
+            <label>
+
+                New Password
+
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                autocomplete="new-password"
+            >
+
+            @if(
+                $errors->updatePassword
+                    ->get('password')
+            )
+
+                <small class="error">
+
+                    {{
+                        $errors
+                            ->updatePassword
+                            ->first(
+                                'password'
+                            )
+                    }}
+
+                </small>
+
+            @endif
+
+        </div>
+
+        <div class="form-group">
+
+            <label>
+
+                Confirm Password
+
+            </label>
+
+            <input
+                type="password"
+                name="password_confirmation"
+                autocomplete="new-password"
+            >
+
+        </div>
+
+        <button
+            type="submit"
+            class="update-password-btn"
+        >
+
+            Update Password
+
+        </button>
+
+        @if(
+            session('status')
+            ===
+            'password-updated'
+        )
+
+            <p class="success-message">
+
+                Password updated successfully.
+
+            </p>
+
+        @endif
+
     </form>
+
 </section>
+
+<style>
+
+.password-header{
+
+    margin-bottom:35px;
+}
+
+.password-header h2{
+
+    font-size:32px;
+
+    font-weight:300;
+
+    margin-bottom:10px;
+}
+
+.password-header p{
+
+    color:#666;
+}
+
+.form-group{
+
+    margin-bottom:25px;
+}
+
+.form-group label{
+
+    display:block;
+
+    margin-bottom:10px;
+
+    font-size:12px;
+
+    letter-spacing:2px;
+
+    color:#777;
+}
+
+.form-group input{
+
+    width:100%;
+
+    padding:16px;
+
+    border:1px solid #ddd;
+
+    font-size:15px;
+
+    transition:.3s;
+}
+
+.form-group input:focus{
+
+    outline:none;
+
+    border-color:black;
+}
+
+.update-password-btn{
+
+    padding:
+        16px
+        34px;
+
+    background:black;
+
+    color:white;
+
+    border:none;
+
+    letter-spacing:2px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.update-password-btn:hover{
+
+    opacity:.9;
+}
+
+.error{
+
+    display:block;
+
+    margin-top:8px;
+
+    color:#c53030;
+}
+
+.success-message{
+
+    margin-top:15px;
+
+    color:#2f855a;
+}
+
+</style>

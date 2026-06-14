@@ -12,9 +12,27 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+
+                    <x-nav-link
+                        :href="route('products.index')"
+                    >
+                        Collection
                     </x-nav-link>
+
+                    @auth
+
+                        @if(auth()->user()->role == 'customer')
+
+                            <x-nav-link
+                                :href="route('wishlist.index')"
+                            >
+                                ♥ Wishlist
+                            </x-nav-link>
+
+                        @endif
+
+                    @endauth
+
                 </div>
             </div>
 
@@ -25,7 +43,7 @@
                 </span>
                 <button id="darkToggle"
                     class="px-4 py-2 bg-black text-white rounded">
-                    🌙 Dark Mode
+                    ☾ Dark
                 </button>
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
@@ -77,6 +95,19 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @auth
+
+                @if(auth()->user()->role == 'customer')
+
+                    <x-responsive-nav-link
+                        :href="route('wishlist.index')"
+                    >
+                        ♥ Wishlist
+                    </x-responsive-nav-link>
+
+                @endif
+
+            @endauth
         </div>
 
         <!-- Responsive Settings Options -->

@@ -127,23 +127,81 @@
 
                 @endif
             <main>
+                @isset($slot)
+                    {{ $slot }}
+                @endisset
+
                 @yield('content')
             </main>
         </div>
         <script>
+
         const darkToggle =
             document.getElementById('darkToggle');
+
+        function updateThemeButton(){
+
+            if(!darkToggle) return;
+
+            if(
+                document.documentElement
+                    .classList.contains('dark')
+            ){
+
+                darkToggle.innerHTML =
+                    '☀ Light';
+
+                darkToggle.classList.remove(
+                    'bg-black',
+                    'text-white'
+                );
+
+                darkToggle.classList.add(
+                    'bg-white',
+                    'text-black'
+                );
+
+            }else{
+
+                darkToggle.innerHTML =
+                    '☾ Dark';
+
+                darkToggle.classList.remove(
+                    'bg-white',
+                    'text-black'
+                );
+
+                darkToggle.classList.add(
+                    'bg-black',
+                    'text-white'
+                );
+            }
+
+        }
+
+        updateThemeButton();
+
         darkToggle?.addEventListener('click', () => {
+
             document.documentElement
                 .classList.toggle('dark');
 
-            if(document.documentElement
-                .classList.contains('dark')){
+            if(
+                document.documentElement
+                    .classList.contains('dark')
+            ){
+
                 setCookie('theme', 'dark');
-            } else {
+
+            }else{
+
                 setCookie('theme', 'light');
             }
+
+            updateThemeButton();
+
         });
+
         </script>
     </body>
 </html>

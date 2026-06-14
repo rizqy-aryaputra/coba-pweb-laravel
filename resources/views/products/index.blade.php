@@ -1,163 +1,178 @@
-@extends('layouts.app')
+@extends('layouts.customer')
 
 @section('content')
 
-<div class="container">
+<div class="collection-page">
 
-    <div class="top-bar">
+    <section class="collection-hero">
 
-        <h1>Product Management</h1>
+        <span>
+            SECOND CHANCE
+        </span>
 
-        <a href="{{ route('products.create') }}" class="btn">
-            + Tambah Product
-        </a>
+        <h1>
+            Collection
+        </h1>
 
-    </div>
+        <p>
+            Curated luxury pieces with a second life.
+        </p>
 
-    {{-- Search Box --}}
-    <div class="search-box">
+        <div class="hero-divider"></div>
+
+        @auth
+
+            @if(auth()->user()->role == 'admin')
+
+                <a
+                    href="{{ route('products.create') }}"
+                    class="add-product-btn"
+                >
+
+                    + Add Product
+
+                </a>
+
+            @endif
+
+        @endauth
+
+    </section>
+
+    <!-- SEARCH -->
+
+    <section class="search-section">
 
         <input
             type="text"
-            id="search"
-            placeholder="Search product..."
+            id="searchInput"
+            placeholder="Search item..."
         >
 
-    </div>
-    
-    {{-- Flash Message --}}
-    @if(session('success'))
+    </section>
 
-        <div class="alert-success">
-            {{ session('success') }}
-        </div>
+    <!-- CATEGORY -->
 
-    @endif
-
-    @if(session('error'))
-
-        <div class="alert-error">
-            {{ session('error') }}
-        </div>
-
-    @endif
-
-
-    <div class="visit-box">
-        <h3>Product Page Visits</h3>
-        <p>
-            Total Visit:
-            {{ session('visit_count') }}
-        </p>
-
-        <p>
-            First Visit:
-            {{ session('first_visit') }}
-        </p>
-
-        <p>
-            Last Visit:
-            {{ session('last_visit') }}
-        </p>
+    <section class="category-section">
 
         <a
-            href="{{ route('reset.visit') }}"
-            class="btn-reset"
+            href="{{ route('products.index') }}"
+            class="{{ request('category') ? '' : 'active-category' }}"
         >
-            Reset Hitungan
+            ALL
         </a>
-    </div>
 
-    {{-- Product List --}}
-    <div class="product-grid" id="product-list">
+        @foreach($categories as $category)
+
+            <a
+                href="{{ route(
+                    'products.index',
+                    [
+                        'category' => $category,
+                        'search' => request('search')
+                    ]
+                ) }}"
+                class="{{ request('category') == $category ? 'active-category' : '' }}"
+            >
+
+                {{ strtoupper($category) }}
+
+            </a>
+
+        @endforeach
+
+    </section>
+
+    <!-- PRODUCTS -->
+
+    <div
+        class="product-grid"
+        id="product-list"
+    >
 
         @forelse($products as $product)
 
-            <div class="card">
+            <div class="product-card">
 
-                {{-- Foto --}}
-                @if($product->foto)
+                <a
+                    href="{{ route('products.show',$product) }}"
+                >
 
-                    <img
-                        src="{{ asset($product->foto) }}"
-                        alt="{{ $product->nama }}"
-                        class="product-image"
-                    >
+                    @if($product->foto)
 
-                @else
+                        <img
+                            src="{{ asset($product->foto) }}"
+                            class="product-image"
+                        >
 
-                    <div class="no-image">
-                        No Image
+                    @else
+
+                        <div class="no-image">
+
+                            No Image
+
+                        </div>
+
+                    @endif
+
+                </a>
+
+                <div class="product-info">
+
+                    <div class="category">
+
+                        {{ strtoupper($product->kategori) }}
+
                     </div>
 
-                @endif
+                    <h3>
 
-                {{-- Info --}}
-                <div class="card-body">
+                        {{ strtoupper($product->nama) }}
 
-                    <h2>{{ $product->nama }}</h2>
+                    </h3>
 
-                    <p>
-                        <strong>Kode:</strong>
-                        {{ $product->kode }}
-                    </p>
+                    <div class="price">
 
-                    <p>
-                        <strong>Kategori:</strong>
-                        {{ $product->kategori }}
-                    </p>
-
-                    <p>
-                        <strong>Stok:</strong>
-                        {{ $product->stok }}
-                    </p>
-
-                    <p>
-                        <strong>Harga:</strong>
-                        Rp {{ number_format($product->harga, 0, ',', '.') }}
-                    </p>
-
-                    <p>
-                        <strong>Tanggal Masuk:</strong>
-                        {{ $product->tanggal_masuk }}
-                    </p>
-
-                    {{-- Action --}}
-                    <div class="action">
-
-                        <a
-                            href="{{ route('products.show', $product->id) }}"
-                            class="btn"
-                        >
-                            Detail
-                        </a>
-
-                        <a
-                            href="{{ route('products.edit', $product->id) }}"
-                            class="btn"
-                        >
-                            Edit
-                        </a>
-
-                        <form
-                            action="{{ route('products.destroy', $product->id) }}"
-                            method="POST"
-                            onsubmit="return confirm('Yakin hapus product ini?')"
-                        >
-
-                            @csrf
-                            @method('DELETE')
-
-                            <button
-                                type="submit"
-                                class="btn btn-danger"
-                            >
-                                Delete
-                            </button>
-
-                        </form>
+                        Rp
+                        {{ number_format($product->harga) }}
 
                     </div>
+
+                    @auth
+
+                        @if(auth()->user()->role == 'admin')
+
+                            <div class="admin-action">
+
+                                <a
+                                    href="{{ route(
+                                        'products.edit',
+                                        $product
+                                    ) }}"
+                                >
+
+                                    Edit
+
+                                </a>
+
+                                <button
+                                    type="button"
+                                    class="delete-btn"
+                                    onclick="openDeleteModal(
+                                        '{{ route('products.destroy', $product) }}',
+                                        '{{ $product->nama }}'
+                                    )"
+                                >
+
+                                    Delete
+
+                                </button>
+
+                            </div>
+
+                        @endif
+
+                    @endauth
 
                 </div>
 
@@ -165,368 +180,719 @@
 
         @empty
 
-            <p>Belum ada product.</p>
+            <div class="empty">
+
+                No products found.
+
+            </div>
 
         @endforelse
 
     </div>
 
-    {{-- Pagination --}}
-    <div class="pagination-wrapper">
+    <!-- PAGINATION -->
 
-        {{-- Prev --}}
+    @if ($products->hasPages())
+
+    <div class="luxury-pagination">
+
         @if ($products->onFirstPage())
-
-            <span class="pagination-disabled">
-                Prev
-            </span>
-
+            <span class="disabled">← Previous</span>
         @else
-
-            <a
-                href="{{ $products->previousPageUrl() }}"
-                class="pagination-btn"
-            >
-                Prev
+            <a href="{{ $products->previousPageUrl() }}">
+                ← Previous
             </a>
-
         @endif
 
-        {{-- Page Number --}}
-        @for ($i = 1; $i <= $products->lastPage(); $i++)
+        <span class="page-number">
+            {{ str_pad($products->currentPage(), 2, '0', STR_PAD_LEFT) }}
+            /
+            {{ str_pad($products->lastPage(), 2, '0', STR_PAD_LEFT) }}
+        </span>
 
-            <a
-                href="{{ $products->url($i) }}"
-                class="pagination-number {{ $products->currentPage() == $i ? 'active' : '' }}"
-            >
-                {{ $i }}
-            </a>
-
-        @endfor
-
-        {{-- Next --}}
         @if ($products->hasMorePages())
-
-            <a
-                href="{{ $products->nextPageUrl() }}"
-                class="pagination-btn"
-            >
-                Next
+            <a href="{{ $products->nextPageUrl() }}">
+                Next →
             </a>
-
         @else
-
-            <span class="pagination-disabled">
-                Next
-            </span>
-
+            <span class="disabled">Next →</span>
         @endif
+
+    </div>
+
+    @endif
+
+    <div
+    id="deleteModal"
+    class="modal-overlay"
+    onclick="closeDeleteModal()"
+>
+
+    <div
+        class="modal-card"
+        onclick="event.stopPropagation()"
+    >
+
+        <h3>
+
+            Delete Product
+
+        </h3>
+
+        <div id="productNameModal"
+            class="product-name-modal">
+        </div>
+
+        <p id="deleteText">
+
+            Are you sure?
+
+        </p>
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="cancel-btn"
+                onclick="closeDeleteModal()"
+            >
+
+                Cancel
+
+            </button>
+
+            <form
+                id="deleteForm"
+                method="POST"
+            >
+
+                @csrf
+                @method('DELETE')
+
+                <button
+                    type="submit"
+                    class="confirm-delete-btn"
+                >
+
+                    Delete
+
+                </button>
+
+            </form>
+
+        </div>
 
     </div>
 
 </div>
 
+</div>
+
 <style>
 
-.container{
-    width:90%;
+/* =========================
+   PAGE
+========================= */
+
+.collection-page{
+
+    width:88%;
     margin:auto;
-    padding:40px 0;
+
+    padding:60px 0 100px;
 }
 
-.top-bar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:30px;
+/* =========================
+   HERO
+========================= */
+
+.collection-hero{
+
+    text-align:center;
+
+    padding:120px 0 90px;
 }
 
-.top-bar h1{
-    font-size:32px;
+.hero-divider{
+
+    width:80px;
+    height:1px;
+
+    background:#111;
+
+    margin:40px auto 0;
 }
 
-.btn{
-    padding:10px 18px;
+.collection-hero span{
+
+    letter-spacing:5px;
+
+    font-size:12px;
+
+    color:#777;
+}
+
+.collection-hero h1{
+
+    font-size:72px;
+
+    font-weight:300;
+
+    margin:20px 0;
+}
+
+.collection-hero p{
+
+    color:#666;
+
+    font-size:18px;
+}
+
+.add-product-btn{
+
+    display:inline-block;
+
+    margin-top:35px;
+
     background:black;
+
     color:white;
-    text-decoration:none;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    transition:0.3s;
+
+    padding:
+        14px
+        28px;
+
+    letter-spacing:2px;
 }
 
-.btn:hover{
-    opacity:0.85;
+/* =========================
+   SEARCH
+========================= */
+
+.search-section{
+
+    margin-bottom:40px;
 }
 
-.btn-danger{
-    background:#dc3545;
-}
+.search-section input{
 
-.alert-success{
-    background:#d4edda;
-    color:#155724;
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:20px;
-}
-
-.alert-error{
-    background:#f8d7da;
-    color:#721c24;
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:20px;
-}
-
-.product-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
-    gap:25px;
-}
-
-.card{
-    border:1px solid #ddd;
-    border-radius:16px;
-    overflow:hidden;
-    background:white;
-    box-shadow:0 4px 10px rgba(0,0,0,0.08);
-}
-
-.product-image{
     width:100%;
-    height:250px;
-    object-fit:cover;
+
+    padding:18px;
+
+    border:none;
+
+    border-bottom:
+        1px solid #ccc;
+
+    font-size:16px;
+
+    outline:none;
 }
 
-.no-image{
-    height:250px;
+/* =========================
+   CATEGORY
+========================= */
+
+.category-section{
+
     display:flex;
-    align-items:center;
+
     justify-content:center;
-    background:#eee;
-}
 
-.card-body{
-    padding:20px;
-}
+    gap:35px;
 
-.card-body h2{
-    margin-bottom:15px;
-}
+    margin-bottom:60px;
 
-.action{
-    margin-top:20px;
-    display:flex;
-    gap:10px;
     flex-wrap:wrap;
 }
 
-.pagination-wrapper{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:10px;
-    margin-top:40px;
+.category-section a{
+
+    color:#666;
+
+    letter-spacing:2px;
+
+    font-size:12px;
 }
 
-.pagination-btn,
-.pagination-number{
-    padding:10px 16px;
-    border:1px solid black;
-    border-radius:8px;
-    text-decoration:none;
-    color:black;
+.active-category{
+
+    color:black !important;
+
+    font-weight:600;
+
+    border-bottom:1px solid black;
+
+    padding-bottom:5px;
 }
 
-.pagination-number.active{
-    background:black;
-    color:white;
+/* =========================
+   PRODUCTS
+========================= */
+
+.product-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fill,minmax(280px,1fr));
+
+    gap:45px;
 }
 
-.pagination-disabled{
-    padding:10px 16px;
-    background:#ccc;
-    border-radius:8px;
-    color:white;
-}
+.product-card{
 
-.search-box{
-    margin-bottom:30px;
-}
-
-.search-box input{
-    width:100%;
-    padding:14px;
-    border-radius:10px;
-    border:1px solid #ccc;
-    font-size:16px;
+    transition:.3s;
 }
 
 .product-image{
+
     width:100%;
-    height:250px;
+
+    height:420px;
+
     object-fit:cover;
+
+    transition:.5s;
+}
+
+.product-card:hover
+.product-image{
+
+    transform:scale(1.03);
 }
 
 .no-image{
-    height:250px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+
+    height:420px;
+
     background:#eee;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
 }
 
-.card{
-    border:1px solid #ddd;
-    border-radius:16px;
-    overflow:hidden;
-    background:white;
-    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+.product-info{
+
+    padding-top:20px;
 }
 
-.card-body{
-    padding:20px;
+.category{
+
+    font-size:11px;
+
+    color:#777;
+
+    letter-spacing:3px;
+
+    margin-bottom:10px;
 }
 
-.visit-box{
-    background:white;
-    padding:25px;
-    border-radius:16px;
-    margin-bottom:30px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+.product-info h3{
+
+    font-size:15px;
+
+    margin-bottom:10px;
+
+    font-weight:500;
 }
 
-.dark .visit-box{
-    background:#1f2937;
+.price{
+
+    font-size:15px;
+
+    font-weight:600;
+}
+
+/* =========================
+   ADMIN
+========================= */
+
+.admin-action{
+
+    margin-top:20px;
+
+    display:flex;
+
+    gap:15px;
+
+    align-items:center;
+}
+
+.admin-action a{
+
+    color:black;
+}
+
+.confirm-delete-btn{
+
+    width:140px;
+
+    height:52px;
+
+    border:none;
+
+    background:black;
+
     color:white;
+
+    letter-spacing:2px;
+
+    cursor:pointer;
+
+    transition:.3s;
 }
 
-.btn-reset{
-    display:inline-block;
-    margin-top:15px;
-    padding:10px 18px;
-    background:#dc3545;
-    color:white;
-    border-radius:10px;
+.confirm-delete-btn:hover{
+
+    opacity:.85;
+}
+
+/* =========================
+   PAGINATION
+========================= */
+
+.pagination-wrapper{
+
+    margin-top:80px;
+
+    display:flex;
+
+    justify-content:center;
+}
+
+.luxury-pagination{
+
+    margin-top:80px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:40px;
+}
+
+.luxury-pagination a{
+
     text-decoration:none;
+
+    color:#111;
+
+    letter-spacing:2px;
+
+    font-size:12px;
+
+    text-transform:uppercase;
 }
+
+.luxury-pagination a:hover{
+
+    opacity:.5;
+}
+
+.page-number{
+
+    font-size:14px;
+
+    letter-spacing:5px;
+
+    color:#111;
+}
+
+.disabled{
+
+    color:#bbb;
+}
+
+/* =========================
+   EMPTY
+========================= */
+
+.empty{
+
+    text-align:center;
+
+    padding:80px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+.modal-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:
+        rgba(0,0,0,.55);
+
+    display:none;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:9999;
+}
+
+.modal-card{
+
+    background:white;
+
+    width:480px;
+
+    max-width:90%;
+
+    padding:60px 50px;
+
+    text-align:center;
+
+    border-radius:0;
+
+    box-shadow:
+        0 30px 60px rgba(0,0,0,.12);
+
+    animation:
+        popup .25s ease;
+}
+
+.modal-card h3{
+
+    font-size:14px;
+
+    letter-spacing:4px;
+
+    text-transform:uppercase;
+
+    font-weight:500;
+
+    margin-bottom:25px;
+}
+
+.modal-card p{
+
+    color:#666;
+
+    line-height:1.8;
+
+    margin-bottom:30px;
+}
+
+.product-name-modal{
+
+    font-size:34px;
+
+    font-weight:300;
+
+    margin-bottom:25px;
+
+    line-height:1.2;
+}
+
+.modal-actions{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:12px;
+}
+
+.cancel-btn{
+
+    width:140px;
+
+    height:52px;
+
+    border:1px solid #ddd;
+
+    background:white;
+
+    letter-spacing:2px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.cancel-btn:hover{
+
+    background:#f7f7f7;
+}
+
+.confirm-delete-btn{
+
+    padding:
+        12px
+        24px;
+
+    border:none;
+
+    background:black;
+
+    color:white;
+
+    cursor:pointer;
+
+    letter-spacing:2px;
+}
+
+@media(max-width:768px){
+
+    .collection-hero h1{
+
+        font-size:48px;
+    }
+
+    .product-image{
+
+        height:320px;
+    }
+
+}
+
+@keyframes popup{
+
+    from{
+
+        opacity:0;
+
+        transform:
+            translateY(20px);
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+            translateY(0);
+    }
+
+}
+
 </style>
 
 <script>
 
-const searchInput =
-    document.getElementById('search');
+function openDeleteModal(
+    action,
+    productName
+){
 
-searchInput.addEventListener('keyup', async function () {
+    document
+        .getElementById('deleteModal')
+        .style.display = 'flex';
 
-    const keyword = this.value;
+    document
+        .getElementById('deleteForm')
+        .action = action;
 
-    try {
+    document
+        .getElementById('productNameModal')
+        .innerText = productName;
+
+    document
+        .getElementById('deleteText')
+        .innerHTML =
+        `
+        This item will be permanently removed
+        from your collection.
+        `;
+}
+
+function closeDeleteModal(){
+
+    document
+        .getElementById(
+            'deleteModal'
+        )
+        .style.display = 'none';
+}
+
+
+document
+    .getElementById('searchInput')
+    .addEventListener('keyup', async function(){
+
+        const keyword = this.value;
 
         const response = await fetch(
             `/search-products?keyword=${keyword}`
         );
 
-        const products = await response.json();
+        const products =
+            await response.json();
 
         let html = '';
 
-        if(products.length > 0){
+        products.forEach(product => {
 
-            products.forEach(product => {
+            html += `
+                <div class="product-card">
 
-                html += `
-
-                    <div class="card">
+                    <a href="/products/${product.id}">
 
                         ${
                             product.foto
                             ?
-                            `
-                            <img
+                            `<img
                                 src="/${product.foto}"
                                 class="product-image"
-                            >
-                            `
+                            >`
                             :
-                            `
-                            <div class="no-image">
+                            `<div class="no-image">
                                 No Image
-                            </div>
-                            `
+                            </div>`
                         }
 
-                        <div class="card-body">
+                    </a>
 
-                            <h2>${product.nama}</h2>
+                    <div class="product-info">
 
-                            <p>
-                                <strong>Kode:</strong>
-                                ${product.kode}
-                            </p>
+                        <div class="category">
+                            ${product.kategori.toUpperCase()}
+                        </div>
 
-                            <p>
-                                <strong>Kategori:</strong>
-                                ${product.kategori}
-                            </p>
+                        <h3>
+                            ${product.nama.toUpperCase()}
+                        </h3>
 
-                            <p>
-                                <strong>Stok:</strong>
-                                ${product.stok}
-                            </p>
-
-                            <p>
-                                <strong>Harga:</strong>
-                                Rp ${product.harga}
-                            </p>
-
-                            <div class="action">
-
-                                <a
-                                    href="/products/${product.id}"
-                                    class="btn"
-                                >
-                                    Detail
-                                </a>
-
-                                <a
-                                    href="/products/${product.id}/edit"
-                                    class="btn"
-                                >
-                                    Edit
-                                </a>
-
-                            </div>
-
+                        <div class="price">
+                            Rp ${Number(product.harga)
+                                .toLocaleString('id-ID')}
                         </div>
 
                     </div>
 
-                `;
-
-            });
-
-        } else {
-
-            html = `
-                <p>Product tidak ditemukan.</p>
+                </div>
             `;
 
+        });
+
+        if(products.length === 0){
+
+            html =
+            `
+                <div class="empty">
+                    No products found.
+                </div>
+            `;
         }
 
-        document.getElementById('product-list')
+        document
+            .getElementById('product-list')
             .innerHTML = html;
 
-    } catch(error){
-
-        console.log(error);
-
-    }
-
-});
-
+    });
 </script>
 
 @endsection

@@ -4,21 +4,22 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PreferenceController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\OrderController;
+
 
 Route::get(
     '/reset-visit',
     [ProductController::class, 'resetVisit']
 )->name('reset.visit');
 
-Route::get('/', function () {
+Route::view('/', 'welcome')->name('home');
 
-    if(auth()->check()){
-        return redirect('/dashboard');
-    }
-
-    return redirect('/login');
-
-});
+Route::view(
+    '/about',
+    'about'
+)->name('about');
 
 Route::get('/dashboard', function () {
 
@@ -28,12 +29,65 @@ Route::get('/dashboard', function () {
 ->name('dashboard');
 
 
+Route::middleware(['auth', 'cekadmin'])->group(function () {
+
+    Route::get('/admin/dashboard',
+        [AdminDashboardController::class, 'index']
+    )->name('admin.dashboard');
+
+});
+
 Route::view('/preferensi', 'preferences');
 
 Route::post(
     '/save-preferences',
     [PreferenceController::class, 'save']
 );
+
+Route::middleware('auth')->group(function () {
+
+    Route::post(
+        '/wishlist/{product}',
+        [WishlistController::class, 'toggle']
+    )->name('wishlist.toggle');
+
+    Route::get(
+        '/wishlist',
+        [WishlistController::class, 'index']
+    )->name('wishlist.index');
+
+    Route::get(
+        '/checkout/{product}',
+        [OrderController::class, 'checkout']
+    )->name('checkout');
+
+    Route::post(
+        '/orders',
+        [OrderController::class, 'store']
+    )->name('orders.store');
+
+    Route::get(
+        '/my-orders',
+        [OrderController::class, 'index']
+    )->name('orders.index');
+
+    Route::get(
+        '/admin/orders',
+        [OrderController::class, 'adminIndex']
+    )->name('admin.orders');
+
+    Route::post(
+        '/admin/orders/{order}/confirm',
+        [OrderController::class, 'confirm']
+    )->name('admin.orders.confirm');
+
+});
+
+Route::delete(
+    '/wishlist/{wishlist}',
+    [WishlistController::class, 'destroy']
+)->name('wishlist.destroy');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +108,7 @@ Route::get('/products', [ProductController::class, 'index'])
 |--------------------------------------------------------------------------
 */
 
+
 Route::middleware(['auth', 'cekadmin'])->group(function () {
 
     Route::get('/products/create', [ProductController::class, 'create'])
@@ -73,6 +128,10 @@ Route::middleware(['auth', 'cekadmin'])->group(function () {
 
 });
 
+Route::patch(
+    '/admin/orders/{order}/cancel',
+    [OrderController::class, 'cancel']
+)->name('orders.cancel');
 
 /*
 |--------------------------------------------------------------------------

@@ -1,64 +1,261 @@
 <section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
+
+    <div class="profile-form-header">
+
+        <h2>
+
+            Profile Information
+
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
+        <p>
+
+            Update your account details and
+            contact information.
+
         </p>
-    </header>
 
-    <form id="send-verification" method="post" action="{{ route('verification.send') }}">
+    </div>
+
+    <form
+        id="send-verification"
+        method="POST"
+        action="{{ route('verification.send') }}"
+    >
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form
+        method="POST"
+        action="{{ route('profile.update') }}"
+    >
+
         @csrf
-        @method('patch')
+        @method('PATCH')
 
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+        <div class="form-group">
+
+            <label>
+
+                Full Name
+
+            </label>
+
+            <input
+                type="text"
+                name="name"
+                value="{{ old('name', $user->name) }}"
+                required
+            >
+
+            @error('name')
+
+                <small class="error">
+
+                    {{ $message }}
+
+                </small>
+
+            @enderror
+
         </div>
 
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+        <div class="form-group">
 
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        {{ __('Your email address is unverified.') }}
+            <label>
 
-                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            {{ __('Click here to re-send the verification email.') }}
-                        </button>
-                    </p>
+                Email Address
 
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600">
-                            {{ __('A new verification link has been sent to your email address.') }}
-                        </p>
-                    @endif
-                </div>
-            @endif
+            </label>
+
+            <input
+                type="email"
+                name="email"
+                value="{{ old('email', $user->email) }}"
+                required
+            >
+
+            @error('email')
+
+                <small class="error">
+
+                    {{ $message }}
+
+                </small>
+
+            @enderror
+
         </div>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+        @if (
+            $user instanceof
+            \Illuminate\Contracts\Auth\MustVerifyEmail
+            &&
+            ! $user->hasVerifiedEmail()
+        )
 
-            @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
-            @endif
-        </div>
+            <div class="verify-box">
+
+                <p>
+
+                    Your email address is not verified.
+
+                </p>
+
+                <button
+                    form="send-verification"
+                    class="verify-btn"
+                >
+
+                    Send Verification Email
+
+                </button>
+
+            </div>
+
+        @endif
+
+        <button
+            type="submit"
+            class="save-btn"
+        >
+
+            Save Changes
+
+        </button>
+
+        @if (
+            session('status')
+            ===
+            'profile-updated'
+        )
+
+            <p class="saved-message">
+
+                Changes saved successfully.
+
+            </p>
+
+        @endif
+
     </form>
+
 </section>
+
+<style>
+
+.profile-form-header{
+
+    margin-bottom:35px;
+}
+
+.profile-form-header h2{
+
+    font-size:32px;
+
+    font-weight:300;
+
+    margin-bottom:10px;
+}
+
+.profile-form-header p{
+
+    color:#666;
+}
+
+.form-group{
+
+    margin-bottom:25px;
+}
+
+.form-group label{
+
+    display:block;
+
+    margin-bottom:10px;
+
+    font-size:12px;
+
+    letter-spacing:2px;
+
+    color:#777;
+}
+
+.form-group input{
+
+    width:100%;
+
+    padding:16px;
+
+    border:1px solid #ddd;
+
+    font-size:15px;
+}
+
+.form-group input:focus{
+
+    outline:none;
+
+    border-color:black;
+}
+
+.save-btn{
+
+    margin-top:10px;
+
+    padding:
+        16px
+        34px;
+
+    background:black;
+
+    color:white;
+
+    border:none;
+
+    letter-spacing:2px;
+
+    cursor:pointer;
+}
+
+.error{
+
+    color:#c53030;
+
+    display:block;
+
+    margin-top:8px;
+}
+
+.saved-message{
+
+    margin-top:15px;
+
+    color:#2f855a;
+}
+
+.verify-box{
+
+    margin-bottom:25px;
+
+    padding:20px;
+
+    background:#fafafa;
+
+    border:1px solid #eee;
+}
+
+.verify-btn{
+
+    margin-top:10px;
+
+    border:none;
+
+    background:none;
+
+    text-decoration:underline;
+
+    cursor:pointer;
+}
+
+</style>
