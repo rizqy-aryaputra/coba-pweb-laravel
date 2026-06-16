@@ -38,9 +38,9 @@ Route::get(
 )->name('products.index');
 
 Route::get(
-    '/products/{product}',
-    [ProductController::class, 'show']
-)->name('products.show');
+    '/reset-visit',
+    [ProductController::class, 'resetVisit']
+)->name('reset.visit');
 
 
 /*
@@ -57,18 +57,6 @@ Route::get('/dashboard', function () {
     'auth',
     'verified'
 ])->name('dashboard');
-
-
-/*
-|--------------------------------------------------------------------------
-| SESSION FEATURE
-|--------------------------------------------------------------------------
-*/
-
-Route::get(
-    '/reset-visit',
-    [ProductController::class, 'resetVisit']
-)->name('reset.visit');
 
 
 /*
@@ -111,8 +99,8 @@ Route::middleware('auth')
 
         Route::get(
             '/my-orders',
-            [OrderController::class, 'index'
-        ])->name('orders.index');
+            [OrderController::class, 'index']
+        )->name('orders.index');
 
         // Profile
 
@@ -130,7 +118,6 @@ Route::middleware('auth')
             '/profile',
             [ProfileController::class, 'destroy']
         )->name('profile.destroy');
-
     });
 
 
@@ -195,8 +182,21 @@ Route::middleware([
         '/products/{product}',
         [ProductController::class, 'destroy']
     )->name('products.destroy');
-
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| PRODUCT DETAIL
+|--------------------------------------------------------------------------
+| HARUS PALING BAWAH
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/products/{product}',
+    [ProductController::class, 'show']
+)->name('products.show');
 
 
 require __DIR__.'/auth.php';

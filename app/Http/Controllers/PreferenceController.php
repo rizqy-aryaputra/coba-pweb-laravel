@@ -30,6 +30,3 @@ class PreferenceController extends Controller
         );
     }
 }
-
-
-

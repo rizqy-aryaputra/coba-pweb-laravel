@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="{{ request()->cookie('theme') === 'dark' ? 'dark' : '' }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,64 +13,50 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <meta name="csrf-token" content="{{ csrf_token() }}">
+
         <script>
-            const theme =
-                document.cookie
-                    .split('; ')
-                    .find(row => row.startsWith('theme='))
-                    ?.split('=')[1];
-
-            if(theme === 'dark'){
-
-                document.documentElement
-                    .classList.add('dark');
+        function setCookie(name, value, days = 30){
+            let expires = "";
+            if(days){
+                const date = new Date();
+                date.setTime(
+                    date.getTime()
+                    + (days * 24 * 60 * 60 * 1000)
+                );
+                expires =
+                    "; expires=" + date.toUTCString();
             }
+            document.cookie =
+                name + "=" + value
+                + expires
+                + "; path=/";
+        }
+
+        function getCookie(name){
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for(let i = 0; i < ca.length; i++){
+                let c = ca[i];
+                while(c.charAt(0) === ' '){
+                    c = c.substring(1, c.length);
+                }
+                if(c.indexOf(nameEQ) === 0){
+                    return c.substring(
+                        nameEQ.length,
+                        c.length
+                    );
+                }
+            }
+            return null;
+        }
+
+        function deleteCookie(name){
+            document.cookie =
+                name +
+                '=; Max-Age=-99999999;';
+        }
         </script>
     </head>
-    <script>
-    function setCookie(name, value, days = 30){
-        let expires = "";
-        if(days){
-            const date = new Date();
-            date.setTime(
-                date.getTime()
-                + (days * 24 * 60 * 60 * 1000)
-            );
-            expires =
-                "; expires=" + date.toUTCString();
-        }
-        document.cookie =
-            name + "=" + value
-            + expires
-            + "; path=/";
-    }
-
-    function getCookie(name){
-        const nameEQ = name + "=";
-        const ca = document.cookie.split(';');
-        for(let i = 0; i < ca.length; i++){
-            let c = ca[i];
-            while(c.charAt(0) === ' '){
-                c = c.substring(1, c.length);
-            }
-            if(c.indexOf(nameEQ) === 0){
-                return c.substring(
-                    nameEQ.length,
-                    c.length
-                );
-            }
-        }
-        return null;
-    }
-
-    function deleteCookie(name){
-        document.cookie =
-            name +
-            '=; Max-Age=-99999999;';
-    }
-    </script>
-
-
     <body class="
     bg-white text-black
     dark:bg-black dark:text-white

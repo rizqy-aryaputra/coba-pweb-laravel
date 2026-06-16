@@ -27,7 +27,6 @@ class OrderController extends Controller
             'phone' => 'required|numeric|digits_between:10,15',
 
             'address' => 'required'
-
         ]);
 
         $product = Product::findOrFail(

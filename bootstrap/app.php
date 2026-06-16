@@ -14,7 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'cekadmin' => \App\Http\Middleware\CekAdmin::class
         ]);
+
+        $middleware->encryptCookies(except: [
+            'theme',
+            'font_size',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
+    
