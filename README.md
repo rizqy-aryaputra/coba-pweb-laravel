@@ -1,58 +1,184 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SECOND CHANCE
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+SECOND CHANCE adalah website e-commerce berbasis Laravel yang menyediakan platform jual beli produk fashion mewah preloved (second-hand luxury fashion). Website ini memungkinkan customer untuk melihat koleksi produk, menyimpan produk ke wishlist, melakukan pemesanan, serta memantau status pesanan. Admin dapat mengelola produk dan memproses pesanan pelanggan melalui dashboard yang telah disediakan.
 
-## About Laravel
+## Fitur
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Customer
+- Register dan Login
+- Melihat koleksi produk
+- Melihat detail produk
+- Menambahkan produk ke Wishlist
+- Menghapus produk dari Wishlist
+- Checkout produk
+- Melihat riwayat pesanan
+- Melihat status pesanan (Pending, Confirmed, Cancelled)
+- Dark Mode Preference
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Admin
+- Login
+- Dashboard Admin
+- Melihat statistik produk
+- Melihat statistik customer
+- Melihat total pesanan
+- Melihat pendapatan
+- CRUD Produk
+  - Tambah Produk
+  - Edit Produk
+  - Hapus Produk
+  - Lihat Produk
+- Mengelola Pesanan
+  - Konfirmasi Pesanan
+  - Membatalkan Pesanan
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Teknologi yang Digunakan
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- Laravel
+- PHP
+- MySQL
+- Blade Template Engine
+- CSS
+- JavaScript
+- Laravel Breeze Authentication
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Database
 
-## Agentic Development
+### Tabel Users
+- id
+- name
+- email
+- password
+- role
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Tabel Products
+- id
+- user_id
+- kode
+- nama
+- kategori
+- stok
+- harga
+- tanggal_masuk
+- foto
+
+### Tabel Wishlists
+- id
+- user_id
+- product_id
+
+### Tabel Orders
+- id
+- user_id
+- product_id
+- name
+- phone
+- address
+- total_price
+- status
+
+---
+
+## Instalasi
+
+### 1. Clone Repository
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/username/second-chance.git
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Masuk ke Folder Project
 
-## Contributing
+```bash
+cd second-chance
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Install Dependency
 
-## Code of Conduct
+```bash
+composer install
+npm install
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 4. Copy Environment File
 
-## Security Vulnerabilities
+```bash
+cp .env.example .env
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 5. Generate Application Key
 
-## License
+```bash
+php artisan key:generate
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 6. Konfigurasi Database
+
+Edit file `.env`
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=secondchance_db
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### 7. Migrasi Database
+
+```bash
+php artisan migrate
+```
+
+### 8. Jalankan Vite
+
+```bash
+npm run dev
+```
+
+### 9. Jalankan Server Laravel
+
+```bash
+php artisan serve
+```
+
+Buka browser:
+
+```text
+http://127.0.0.1:8000
+```
+
+---
+
+## Struktur Role
+
+### Admin
+Admin memiliki akses untuk:
+- Dashboard
+- Manajemen Produk
+- Manajemen Pesanan
+
+### Customer
+Customer memiliki akses untuk:
+- Dashboard
+- Wishlist
+- Checkout
+- Riwayat Pesanan
+
+---
+
+## Status Pesanan
+
+- Pending
+- Confirmed
+- Cancelled
+
+---
+
+## Pengembang
+
+Project ini dikembangkan sebagai tugas mata kuliah Pemrograman Web menggunakan Laravel Framework.
